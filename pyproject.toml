@@ -1,0 +1,49 @@
+[build-system]
+requires = ["scikit-build-core>=0.3", "pybind11>=2.11"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "minimax-cpppy"
+version = "0.1.1"
+description = "MINIMAX Laplace quadrature — minimax-optimal exponents and weights for 1/x on [ymin, ymax]"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Linus Bjarne Dittmer", email = "linus.dittmer@stud.uni-heidelberg.de" },
+]
+keywords = ["minimax", "laplace", "quadrature", "quantum-chemistry", "mp2", "remez"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: C++",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = ["numpy"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.urls]
+Homepage = "https://github.com/LinusBDittmer/minimax-cpp-py"
+Repository = "https://github.com/LinusBDittmer/minimax-cpp-py"
+Issues = "https://github.com/LinusBDittmer/minimax-cpp-py/issues"
+
+[tool.scikit-build]
+cmake.args = [
+    "-DMINIMAX_CPPPY_BUILD_PYTHON=ON",
+    "-DMINIMAX_CPPPY_BUILD_TESTS=OFF",
+]
+wheel.packages = ["python/minimax_cpppy"]
+
+[tool.cibuildwheel]
+build = "cp39-* cp310-* cp311-* cp312-* cp313-*"
+skip = "*-musllinux_i686 *_i686 *-win32"
+test-command = "python -c \"import minimax_cpppy as mm; e,w,err = mm.laplace_minimax(5, 1.0, 100.0); assert len(e) == 5 and err > 0.0\""
+test-requires = "numpy"
+
+[tool.cibuildwheel.linux]
+manylinux-x86_64-image = "manylinux_2_28"
