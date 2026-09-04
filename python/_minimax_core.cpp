@@ -1,7 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include "minimax_cpppy/minimax.hpp"
-#include "minimax_cpppy/minimax_lp.hpp"
+#include "minimax_cpppy/laplace_lp.hpp"
 #include "minimax_cpppy/biasing.hpp"
 #include <vector>
 

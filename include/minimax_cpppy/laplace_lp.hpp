@@ -1,4 +1,4 @@
-// include/minimax_cpppy/minimax_lp.hpp
+// include/minimax_cpppy/laplace_lp.hpp
 #pragma once
 #include <iosfwd>
 #include "minimax_cpppy/minimax.hpp"

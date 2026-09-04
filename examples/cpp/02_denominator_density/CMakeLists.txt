@@ -36,5 +36,5 @@ add_executable(denominator_density main.cpp)
 
 # Linking against minimax_cpppy provides:
 #   - minimax_cpppy/minimax.hpp  (laplaceMinimax)
-#   - minimax_cpppy/biasing.hpp  (DenominatorDensity, biasedLaplace)
+#   - minimax_cpppy/denominator_density.hpp  (DenominatorDensity)
 target_link_libraries(denominator_density PRIVATE minimax_cpppy)

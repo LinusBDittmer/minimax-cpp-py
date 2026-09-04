@@ -39,7 +39,7 @@
 // The public header for minimax_cpppy.
 // Everything lives in namespace minimax_cpppy.
 #include "minimax_cpppy/minimax.hpp"
-#include "minimax_cpppy/minimax_lp.hpp"   // laplaceLp — L_p-norm variant
+#include "minimax_cpppy/laplace_lp.hpp"   // laplaceLp — L_p-norm variant
 
 
 // =============================================================================

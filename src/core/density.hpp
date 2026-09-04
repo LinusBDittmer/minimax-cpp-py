@@ -142,7 +142,7 @@ struct CubicSpline {
 };
 
 // The C²-smooth quintic Hermite spline that consumes these knots is evaluated
-// at run time by DenominatorDensity::evalW (include/minimax_cpppy/biasing.hpp).
+// at run time by DenominatorDensity::evalW (include/minimax_cpppy/denominator_density.hpp).
 
 // ── main builder ──────────────────────────────────────────────────────────
 

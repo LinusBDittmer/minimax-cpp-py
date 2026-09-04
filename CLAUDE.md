@@ -60,6 +60,9 @@ cmake --build build --parallel
 
 ```
 include/minimax_cpppy/minimax.hpp   ← public C++ API (MinimaxResult, laplaceMinimax)
+include/minimax_cpppy/laplace_lp.hpp← L_p-norm minimax (laplaceLp)
+include/minimax_cpppy/denominator_density.hpp
+                                    ← DenominatorDensity (FFT KDE + spline weight function)
 include/minimax_cpppy/biasing.hpp   ← biased L∞ minimax via DenominatorDensity weighting
 src/laplace.cpp                     ← thin shim: delegates to detail::laplaceMinimax
 src/biasing.cpp                     ← biased Remez implementation

@@ -58,63 +58,22 @@ if(MINIMAX_CPPPY_BUILD_PYTHON)
 endif()
 
 if(MINIMAX_CPPPY_BUILD_TOOLS)
-    add_executable(minimax_loss_func tools/minimax_loss_func.cpp)
-    target_include_directories(minimax_loss_func PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/core
-    )
-    target_link_libraries(minimax_loss_func PRIVATE minimax_cpppy)
-    target_compile_options(minimax_loss_func PRIVATE
-        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra>
-    )
-
-    add_executable(denominator_density tools/denominator_density.cpp)
-    target_include_directories(denominator_density PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/core
-    )
-    target_link_libraries(denominator_density PRIVATE minimax_cpppy)
-    target_compile_options(denominator_density PRIVATE
-        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra>
-    )
-
-    add_executable(minimax_lp_loss tools/minimax_lp_loss.cpp)
-    target_include_directories(minimax_lp_loss PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/core
-    )
-    target_link_libraries(minimax_lp_loss PRIVATE minimax_cpppy)
-    target_compile_options(minimax_lp_loss PRIVATE
-        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra>
-    )
-
-    add_executable(ln_quad_scan tools/ln_quad_scan.cpp)
-    target_include_directories(ln_quad_scan PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/core
-    )
-    target_link_libraries(ln_quad_scan PRIVATE minimax_cpppy)
-    target_compile_options(ln_quad_scan PRIVATE
-        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra>
-    )
-
-    add_executable(gen_table tools/gen_table.cpp)
-    target_include_directories(gen_table PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-    )
-    target_link_libraries(gen_table PRIVATE minimax_cpppy)
+    foreach(t minimax_loss_func denominator_density laplace_lp_loss ln_quad_scan gen_table dump_reference)
+        add_executable(${t} tools/${t}.cpp)
+        target_include_directories(${t} PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+            ${CMAKE_CURRENT_SOURCE_DIR}/src
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/core
+        )
+        target_link_libraries(${t} PRIVATE minimax_cpppy)
+        target_compile_options(${t} PRIVATE
+            $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra>
+        )
+    endforeach()
+    # gen_table runs the full Remez sweep; keep it optimised even in Debug builds.
     target_compile_options(gen_table PRIVATE
-        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra -O2>
+        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-O2>
     )
-
-    add_executable(dump_reference tools/dump_reference.cpp)
-    target_include_directories(dump_reference PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/core ${CMAKE_SOURCE_DIR}/include)
-    target_link_libraries(dump_reference PRIVATE minimax_cpppy)
 endif()
 
 if(MINIMAX_CPPPY_BUILD_DOCS)
@@ -134,13 +93,31 @@ if(MINIMAX_CPPPY_BUILD_DOCS)
     )
 endif()
 
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
 install(TARGETS minimax_cpppy
     EXPORT  minimax_cpppy_targets
-    ARCHIVE DESTINATION lib
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-install(DIRECTORY include/minimax_cpppy DESTINATION include)
+install(DIRECTORY include/minimax_cpppy DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(EXPORT minimax_cpppy_targets
     FILE      minimax_cpppy_targets.cmake
     NAMESPACE minimax_cpppy::
-    DESTINATION lib/cmake/minimax_cpppy
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/minimax_cpppy
+)
+
+configure_package_config_file(
+    cmake/minimax_cpppyConfig.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/minimax_cpppyConfig.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/minimax_cpppy
+)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/minimax_cpppyConfigVersion.cmake"
+    COMPATIBILITY SameMajorVersion
+)
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/minimax_cpppyConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/minimax_cpppyConfigVersion.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/minimax_cpppy
 )

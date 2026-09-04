@@ -1,5 +1,5 @@
 // src/laplace_lp.cpp
-#include "minimax_cpppy/minimax_lp.hpp"
+#include "minimax_cpppy/laplace_lp.hpp"
 #include "core/algorithm.hpp"   // detail::laplaceMinimax
 #include "core/newton.hpp"
 #include "core/ln_loss.hpp"

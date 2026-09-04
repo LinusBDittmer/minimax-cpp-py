@@ -24,7 +24,7 @@ minimax_add_test(test_minimax_small)
 minimax_add_test(test_minimax_molecular)
 minimax_add_test(test_minimax_r10)
 minimax_add_test(test_run_banner)
-minimax_add_test(test_minimax_lp INTERNAL)
+minimax_add_test(test_laplace_lp INTERNAL)
 
 minimax_add_test(test_ext_table INTERNAL)
 minimax_add_test(test_lookup_nonuniform INTERNAL)

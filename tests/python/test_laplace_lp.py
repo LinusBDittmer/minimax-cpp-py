@@ -1,4 +1,4 @@
-# tests/python/test_minimax_lp.py
+# tests/python/test_laplace_lp.py
 import numpy as np
 import pytest
 from minimax_cpppy import laplace_lp

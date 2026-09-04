@@ -27,6 +27,6 @@ if(Python3_FOUND)
         COMMAND ${Python3_EXECUTABLE} -m pytest "${CMAKE_SOURCE_DIR}/tests/python/" -v
     )
     set_tests_properties(pytest PROPERTIES
-        ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR};LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6"
+        ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}"
     )
 endif()

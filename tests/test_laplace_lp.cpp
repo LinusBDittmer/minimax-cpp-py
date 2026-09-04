@@ -1,7 +1,7 @@
-// tests/test_minimax_lp.cpp
+// tests/test_laplace_lp.cpp
 #include "test_helpers.hpp"
 #include "minimax_cpppy/minimax.hpp"
-#include "minimax_cpppy/minimax_lp.hpp"
+#include "minimax_cpppy/laplace_lp.hpp"
 #include "core/algorithm.hpp"
 #include "core/ln_loss.hpp"
 #include <cmath>

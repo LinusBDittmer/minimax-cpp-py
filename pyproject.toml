@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "minimax-cpppy"
-version = "0.1.1"
+dynamic = ["version"]
 description = "MINIMAX Laplace quadrature — minimax-optimal exponents and weights for 1/x on [ymin, ymax]"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -33,6 +33,11 @@ Repository = "https://github.com/LinusBDittmer/minimax-cpp-py"
 Issues = "https://github.com/LinusBDittmer/minimax-cpp-py/issues"
 
 [tool.scikit-build]
+# Single source of truth for the version: project(... VERSION ...) in CMakeLists.txt
+metadata.version.provider = "scikit_build_core.metadata.regex"
+metadata.version.input = "CMakeLists.txt"
+metadata.version.regex = 'project\([^)]*VERSION\s+(?P<value>[0-9]+(\.[0-9]+)*)'
+sdist.include = ["CMakeLists.txt"]
 cmake.args = [
     "-DMINIMAX_CPPPY_BUILD_PYTHON=ON",
     "-DMINIMAX_CPPPY_BUILD_TESTS=OFF",

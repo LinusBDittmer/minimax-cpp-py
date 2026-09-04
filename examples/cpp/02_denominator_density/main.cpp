@@ -33,7 +33,7 @@
 #include <cstdio>
 #include <vector>
 
-#include "minimax_cpppy/biasing.hpp"
+#include "minimax_cpppy/denominator_density.hpp"
 
 
 // =============================================================================

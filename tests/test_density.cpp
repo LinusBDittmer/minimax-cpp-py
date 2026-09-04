@@ -1,5 +1,5 @@
 #include "test_helpers.hpp"
-#include "minimax_cpppy/biasing.hpp"
+#include "minimax_cpppy/denominator_density.hpp"
 #include "molecular_orbital_data.hpp"
 #include <algorithm>
 #include <cmath>

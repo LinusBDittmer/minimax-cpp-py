@@ -21,7 +21,7 @@
  *   w, dw, d2w = DenominatorDensity::evalW(t_i)
  */
 
-#include "minimax_cpppy/biasing.hpp"
+#include "minimax_cpppy/denominator_density.hpp"
 
 #include <cmath>
 #include <cstdlib>

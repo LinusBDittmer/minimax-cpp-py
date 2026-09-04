@@ -1,5 +1,5 @@
-// tools/minimax_lp_loss.cpp
-#include "minimax_cpppy/minimax_lp.hpp"
+// tools/laplace_lp_loss.cpp
+#include "minimax_cpppy/laplace_lp.hpp"
 #include <cstdlib>
 #include <iostream>
 

@@ -473,8 +473,9 @@ for the biased quadrature workflow and its effect on SOS-DF-LT-MP2 accuracy.
 ## Usage — C++
 
 The public API lives in `minimax_cpppy/minimax.hpp` (standard minimax),
-`minimax_cpppy/minimax_lp.hpp` ($`L_p`$-norm minimax), and
-`minimax_cpppy/biasing.hpp` (density-biased variant + `DenominatorDensity`),
+`minimax_cpppy/laplace_lp.hpp` ($`L_p`$-norm minimax),
+`minimax_cpppy/denominator_density.hpp` (`DenominatorDensity`), and
+`minimax_cpppy/biasing.hpp` (density-biased variant),
 all in the `minimax_cpppy` namespace.
 
 ### Data types
@@ -501,7 +502,7 @@ MinimaxResult laplaceMinimax(int nlap, double ymin, double ymax,
                               int verbose = 3,
                               std::ostream& os = std::cerr);
 
-// L_p-norm minimax (minimax_lp.hpp).
+// L_p-norm minimax (laplace_lp.hpp).
 MinimaxResult laplaceLp(int nlap, double ymin, double ymax, double normP,
                          int verbose = 3, std::ostream& os = std::cerr);
 
@@ -544,7 +545,8 @@ for (int k = 0; k < 7; ++k)
 ### Density-biased quadrature
 
 ```cpp
-#include "minimax_cpppy/biasing.hpp"
+#include "minimax_cpppy/biasing.hpp"           // biasedLaplace
+#include "minimax_cpppy/denominator_density.hpp"
 
 // Occupied and virtual orbital energies (Hartree)
 std::vector<double> occ  = { -1.2, -0.8, -0.5 };
@@ -622,8 +624,10 @@ for the biased quadrature workflow.
 
 ```
 include/minimax_cpppy/minimax.hpp   ← public C++ API (MinimaxResult, laplaceMinimax)
-include/minimax_cpppy/minimax_lp.hpp← public C++ API (laplaceLp, L_p-norm minimax)
-include/minimax_cpppy/biasing.hpp   ← public C++ API (DenominatorDensity, biasedLaplace)
+include/minimax_cpppy/laplace_lp.hpp← public C++ API (laplaceLp, L_p-norm minimax)
+include/minimax_cpppy/denominator_density.hpp
+                                    ← public C++ API (DenominatorDensity)
+include/minimax_cpppy/biasing.hpp   ← public C++ API (biasedLaplace)
 src/laplace.cpp                     ← thin shim: delegates to detail::laplaceMinimax
 src/laplace_lp.cpp                  ← thin shim: delegates to the Ln-loss solver
 src/biasing.cpp                     ← biased Remez + DenominatorDensity construction
@@ -650,7 +654,7 @@ python/minimax_cpppy/__init__.py    ← re-exports laplace_minimax, laplace_lp,
 tools/gen_table.cpp                 ← table generator: runs Remez over the two-tier grid for nlap=1..30
 tools/minimax_loss_func.cpp         ← diagnostic CLI: prints e(x) CSV on log grid
 tools/denominator_density.cpp       ← diagnostic CLI: evaluates DenominatorDensity::evalW CSV
-tools/minimax_lp_loss.cpp           ← internal dev tool: evaluates the Ln-loss solver at a point
+tools/laplace_lp_loss.cpp           ← internal dev tool: evaluates the Ln-loss solver at a point
 tools/ln_quad_scan.cpp              ← internal dev tool: Ln-loss quadrature panel-count convergence scan
 tools/dump_reference.cpp            ← internal dev tool: regenerates tests/data/reference_outputs.csv
 ```
@@ -691,7 +695,7 @@ cmake --build build_tools --parallel
 ```
 
 This also builds `gen_table` (see "Regenerating ext tables" below) and three
-tools used only for internal development (`minimax_lp_loss`, `ln_quad_scan`,
+tools used only for internal development (`laplace_lp_loss`, `ln_quad_scan`,
 `dump_reference`) — not needed for normal use of the library.
 
 **`minimax_loss_func <ratio> <resolution> <nlap>`**
