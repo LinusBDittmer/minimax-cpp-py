@@ -51,7 +51,7 @@ struct MinimaxResult {
 // Thread safety: all public functions are thread-safe. No mutable global state (debug
 //       counters are atomic and compiled out in Release). Safe to call concurrently.
 MinimaxResult laplaceMinimax(int nlap, double ymin, double ymax,
-                              int verbose = 3,
+                              int verbose = 1,
                               std::ostream& os = std::cerr);
 
 // Overload: provide initial guess in [ymin, ymax] domain; bypasses table lookup.
@@ -60,7 +60,7 @@ MinimaxResult laplaceMinimax(int nlap, double ymin, double ymax,
 MinimaxResult laplaceMinimax(int nlap, double ymin, double ymax,
                               const std::vector<double>& init_expon,
                               const std::vector<double>& init_weight,
-                              int verbose = 3,
+                              int verbose = 1,
                               std::ostream& os = std::cerr);
 
 } // namespace minimax_cpppy

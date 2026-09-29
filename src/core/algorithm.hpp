@@ -87,7 +87,7 @@ inline minimax_cpppy::MinimaxResult laplaceMinimax(int nlap, double ymin, double
             result.expon[k]  = (exp[k] / ymin).hi;
             result.weight[k] = (wt[k]  / ymin).hi;
         }
-        result.errmax = err.hi;
+        result.errmax = (err / ymin).hi;
         return result;
     };
 

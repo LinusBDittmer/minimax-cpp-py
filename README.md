@@ -311,7 +311,7 @@ exponents, weights, errmax = mm.laplace_minimax(nlap, ymin, ymax)
 | `ymax` | `float` | Upper interval bound |
 | `init_expon` | `ndarray`, shape `(nlap,)`, optional, keyword-only | Initial exponents in `[ymin, ymax]`; bypasses table lookup. Must be paired with `init_weight`. |
 | `init_weight` | `ndarray`, shape `(nlap,)`, optional, keyword-only | Initial weights in `[ymin, ymax]`; must be paired with `init_expon`. |
-| `verbose` | `int`, optional, keyword-only | Verbosity level (default `3`): `0`=silent, `1`=errors, `2`=+warnings, `3`=+info per Remez/NR iter, `4`=+debug per Newton step. Output goes to stderr. |
+| `verbose` | `int`, optional, keyword-only | Verbosity level (default `1`): `0`=silent, `1`=errors, `2`=+warnings, `3`=+info per Remez/NR iter, `4`=+debug per Newton step. Output goes to stderr. |
 
 | Return value | Type | Description |
 |--------------|------|-------------|
@@ -346,7 +346,7 @@ close to 1.
 | `ymin` | `float` | Lower interval bound; must satisfy `0 < ymin < ymax` |
 | `ymax` | `float` | Upper interval bound |
 | `norm_p` | `float` | Loss order, `norm_p ≥ 1` |
-| `verbose` | `int`, optional, keyword-only | Verbosity level (default `3`) |
+| `verbose` | `int`, optional, keyword-only | Verbosity level (default `1`) |
 
 Returns `(exponents, weights, lp_norm)`, where `lp_norm` is the achieved
 $`L_p`$ norm — **not** the $`L_\infty`$ error (use `errmax` from
@@ -411,10 +411,10 @@ them from a `DenominatorDensity` built with the same inputs, as above.
 | `virt` | `ndarray`, `float64` | Virtual orbital energies |
 | `bandwidth` | `float` | KDE bandwidth (see `DenominatorDensity`) |
 | `n_fft`, `n_t`, `floor_frac`, `floor_frac_max`, `C`, `n_exc` | optional, keyword-only | Same as `DenominatorDensity` |
-| `verbose` | `int`, optional, keyword-only | Verbosity level (default `3`) |
+| `verbose` | `int`, optional, keyword-only | Verbosity level (default `1`) |
 
-Returns `(exponents, weights, errmax)`. `errmax` is the $`L_\infty`$ error on the
-normalised domain, same convention as `laplace_minimax` — it is *not* the
+Returns `(exponents, weights, errmax)`. `errmax` is the $`L_\infty`$ error on
+$`[y_\min, y_\max]`$, same convention as `laplace_minimax` — it is *not* the
 minimised density-weighted bias, and it is expected to be *larger* than the
 unbiased minimax `errmax`; that is the trade being made.
 
@@ -492,19 +492,19 @@ struct MinimaxResult {
 
 // Standard minimax — uses pre-tabulated initial data.
 MinimaxResult laplaceMinimax(int nlap, double ymin, double ymax,
-                              int verbose = 3,
+                              int verbose = 1,
                               std::ostream& os = std::cerr);
 
 // Overload — provide initial guess; bypasses table lookup.
 MinimaxResult laplaceMinimax(int nlap, double ymin, double ymax,
                               std::vector<double> init_expon,
                               std::vector<double> init_weight,
-                              int verbose = 3,
+                              int verbose = 1,
                               std::ostream& os = std::cerr);
 
 // L_p-norm minimax (laplace_lp.hpp).
 MinimaxResult laplaceLp(int nlap, double ymin, double ymax, double normP,
-                         int verbose = 3, std::ostream& os = std::cerr);
+                         int verbose = 1, std::ostream& os = std::cerr);
 
 // Density-biased quadrature (biasing.hpp). Builds its own DenominatorDensity
 // internally from (occ, virt, bandwidth, ...); ymin/ymax must match that
@@ -517,7 +517,7 @@ MinimaxResult biasedLaplace(
     int n_fft = 4096, int n_t = 512,
     double floor_frac = 1e-3, double floor_frac_max = -1.0,
     double C = 0.0, int n_exc = 2,
-    int verbose = 3, std::ostream& os = std::cerr);
+    int verbose = 1, std::ostream& os = std::cerr);
 
 } // namespace minimax_cpppy
 ```

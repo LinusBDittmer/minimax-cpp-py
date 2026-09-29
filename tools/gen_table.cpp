@@ -262,7 +262,15 @@ int main(int argc, char** argv) {
             double e[53] = {}, w[53] = {}, ext[105] = {}, err = 0.0;
             bool ok = false;
 
-            if (seedFromExtTable(nlap, ratio, e, w, err, ext))
+            // Continuation: the previous node's converged solution is the best
+            // seed, and the only good one past the saturation ratio, where
+            // older table rows may hold spurious (eps ~ 1/R) solutions.
+            if (j > 0) {
+                const Entry& prev = entries[j - 1];
+                ok = compute(nlap, ratio, prev.expon, prev.weight, prev.errmax, entries[j]);
+            }
+
+            if (!ok && seedFromExtTable(nlap, ratio, e, w, err, ext))
                 ok = compute(nlap, ratio, e, w, err, entries[j], ext);
 
             if (!ok && seedFromExtTable(nlap, ratio, e, w, err, ext))   // retry without extrema hint

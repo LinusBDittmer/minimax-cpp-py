@@ -22,6 +22,6 @@ MinimaxResult biasedLaplace(
     int n_fft = 4096, int n_t = 512,
     double floor_frac = 1e-3, double floor_frac_max = -1.0,
     double C = 0.0, int n_exc = 2,
-    int verbose = 3, std::ostream& os = std::cerr);
+    int verbose = 1, std::ostream& os = std::cerr);
 
 } // namespace minimax_cpppy

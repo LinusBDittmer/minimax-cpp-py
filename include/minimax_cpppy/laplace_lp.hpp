@@ -20,6 +20,6 @@ namespace minimax_cpppy {
 // Throws std::invalid_argument (Debug) on bad nlap/range/normP; std::runtime_error
 // if the damped-Newton optimiser fails to converge.
 MinimaxResult laplaceLp(int nlap, double ymin, double ymax, double normP,
-                        int verbose = 3, std::ostream& os = std::cerr);
+                        int verbose = 1, std::ostream& os = std::cerr);
 
 } // namespace minimax_cpppy

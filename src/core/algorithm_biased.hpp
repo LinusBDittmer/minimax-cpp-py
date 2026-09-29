@@ -300,9 +300,9 @@ inline void chainRuleToZ(int nlap, int dim, const DD* a,
  * floor_frac, floor_frac_max, C, n_exc) to have ratio() matching ymax/ymin
  * within 1 ppm (same check/degenerate-ratio exception as biasedLaplace).
  *
- * errmax in the returned MinimaxResult is the classic normalised-domain
- * max|eta_norm(x_norm)| (same convention as laplaceMinimax/biasedLaplace
- * -- NOT r(theta), which is a different, smaller quantity by design).
+ * errmax in the returned MinimaxResult is max|1/x - f(x)| on [ymin, ymax]
+ * (same convention as laplaceMinimax -- NOT r(theta), which is a different,
+ * smaller quantity by design).
  */
 inline minimax_cpppy::MinimaxResult biasedLaplace(
     int nlap, double ymin, double ymax,
@@ -405,8 +405,8 @@ inline minimax_cpppy::MinimaxResult biasedLaplace(
         result.weight[k] = wNorm[k] / ymin;
     }
 
-    // errmax: unscaled normalised-domain max|eta_norm| -- same convention as
-    // laplaceMinimax/biasedLaplace (see Global Constraints).
+    // errmax: max|1/x - f(x)| on the physical [ymin, ymax] domain, i.e. the
+    // normalised-domain max|eta_norm| / ymin -- same convention as laplaceMinimax.
     const double tmax = std::log(ratio);
     const int nScan = 2000;
     double errmax = 0.0;
@@ -417,6 +417,7 @@ inline minimax_cpppy::MinimaxResult biasedLaplace(
         for (int k = 0; k < nlap; ++k) e -= wNorm[k] * std::exp(-aNorm[k] * x);
         errmax = std::max(errmax, std::abs(e));
     }
+    errmax /= ymin;
     // Divergence guard: Phase-2 Newton can occasionally diverge into a
     // pathological regime (a_k -> 0, w_k -> +-huge) for near-degenerate or
     // finely-perturbed inputs -- a narrow instability basin inherent to

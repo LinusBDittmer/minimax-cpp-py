@@ -7,6 +7,34 @@ include breaking changes.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-09-29
+
+### Changed
+
+- `verbose` now defaults to `1` (was `3`) across all three public entry
+  points (`laplace_minimax`, `laplace_lp`, `biased_laplace`): only the run
+  banner and errors are printed to stderr by default.
+
+### Fixed
+
+- `laplace_minimax` returned sub-optimal points and weights with a wrong
+  `errmax` (≈ `ymin/ymax`) once `ymax/ymin` exceeded the saturation ratio of
+  the given `nlap` (≈ 10 for `nlap=1`, 1e3 for `nlap=5`, 1e9 for `nlap=30`).
+  Past that ratio the `[1, R]` minimax equals the `[1, ∞)` one and `x = R` is
+  no longer an alternation point, but the Remez loop forced it to be one and
+  converged to a spurious equioscillation that missed the last error
+  extremum (e.g. `nlap=5`, `R=1e5`: true error 1.09e-2 instead of the
+  optimal 6.43e-4). The Remez loop now detects this and switches to the
+  saturated alternation set; the ext tables (and the regression reference)
+  were regenerated. `biased_laplace` and `laplace_lp`, which warm-start from
+  `laplace_minimax`, benefit as well.
+- `errmax` returned by `laplace_minimax` and `biased_laplace` is now the
+  maximum error on `[ymin, ymax]`, as documented. It was previously the
+  error on the normalised interval `[1, ymax/ymin]`, i.e. off by a factor
+  `ymin`.
+
+## [0.1.1] - 2026-09-04
+
 ### Changed
 
 - `laplace_minimax_ln` has been renamed to `laplace_lp`, and its `n` argument
@@ -31,11 +59,6 @@ include breaking changes.
   builds.
 - Windows/macOS CI stability fixes (portable `M_PI`/`M_E` replacements for
   MSVC; `pip` self-upgrade invoked via `python -m pip`).
-
-## [0.1.1] - 2026-07-27
-
-### Fixed
-
 - `laplace_minimax` and `biased_laplace_minimax` now explicitly validate
   `nlap` (must be in `[1, 30]`) and `ymin`/`ymax` (must satisfy
   `0 < ymin < ymax`) at the Python binding layer, raising `ValueError` with a

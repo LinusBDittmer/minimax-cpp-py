@@ -50,7 +50,7 @@ PYBIND11_MODULE(_minimax_core, m) {
         py::kw_only(),
         py::arg("init_expon") = py::none(),
         py::arg("init_weight") = py::none(),
-        py::arg("verbose") = 3,
+        py::arg("verbose") = 1,
         R"doc(
 Compute MINIMAX-optimal Laplace exponents and weights for 1/x on [ymin, ymax].
 
@@ -69,7 +69,7 @@ init_weight : ndarray, shape (nlap,), float64, optional
     Initial weights in [ymin, ymax] domain. Must be provided together with
     init_expon.
 verbose : int, optional
-    Verbosity level (default 3).
+    Verbosity level (default 1).
     0 = silent, 1 = errors only, 2 = +warnings, 3 = +info per Remez/NR iter,
     4 = +debug per Newton step. Output goes to stderr.
 
@@ -103,7 +103,7 @@ RuntimeError
             return py::make_tuple(expon, weight, r.errmax);
         },
         py::arg("nlap"), py::arg("ymin"), py::arg("ymax"), py::arg("norm_p"),
-        py::kw_only(), py::arg("verbose") = 3,
+        py::kw_only(), py::arg("verbose") = 1,
         R"doc(
 L_p-norm-optimal Laplace quadrature for 1/x on [ymin, ymax].
 
@@ -120,7 +120,7 @@ ymax : float     Upper bound (> ymin).
 norm_p : float   Loss order; real >= 1 (norm_p=1 is the L1 / mean-abs problem).
                  Low non-integer norm_p (< ~1.25) use a continuation-in-norm_p
                  fallback (slower); orders near 1 may still fail to converge.
-verbose : int    Verbosity (default 3).
+verbose : int    Verbosity (default 1).
 
 Returns
 -------
@@ -195,7 +195,7 @@ RuntimeError  If Newton fails to converge.
         py::arg("floor_frac_max") = -1.0,
         py::arg("C")              = 0.0,
         py::arg("n_exc")          = 2,
-        py::arg("verbose")        = 3,
+        py::arg("verbose")        = 1,
         R"doc(
 Density-uncorrelated bias-correction Laplace quadrature for 1/x on [ymin, ymax].
 
@@ -214,14 +214,14 @@ occ : ndarray        Occupied orbital energies [Ha].
 virt : ndarray        Virtual orbital energies [Ha].
 bandwidth : float     KDE bandwidth (see DenominatorDensity).
 n_fft, n_t, floor_frac, floor_frac_max, C, n_exc : see DenominatorDensity.
-verbose : int, optional   Verbosity level (default 3).
+verbose : int, optional   Verbosity level (default 1).
 
 Returns
 -------
 exponents : ndarray, shape (nlap,)
 weights : ndarray, shape (nlap,)
 errmax : float
-    Maximum absolute normalised-domain approximation error (same convention as
+    Maximum absolute approximation error on [ymin, ymax] (same convention as
     laplace_minimax) -- not the achieved density-weighted bias, which is a
     separate, smaller quantity by design.
 

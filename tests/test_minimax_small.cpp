@@ -162,4 +162,32 @@ MINIMAX_TEST(small_ratio_medium_nlap_fallback) {
     MINIMAX_REQUIRE(err < 1.0);
 }
 
+// errmax must be the true max |1/x - f(x)| on [ymin, ymax]: covers the
+// saturated regime (R past the saturation ratio, where Remez used to converge
+// to a spurious equioscillation with errmax ~ 1/R) and ymin != 1 scaling.
+MINIMAX_TEST(errmax_matches_sampled_error) {
+    struct Case { int nlap; double ymin, ymax; };
+    const Case cases[] = {
+        {1, 1.0, 1e5}, {2, 1.0, 100.0}, {5, 1.0, 1e5}, {10, 1.0, 1e5},
+        {5, 0.1, 1e4}, {10, 0.25, 1e6}, {30, 1.0, 1e12}, {5, 1.0, 100.0},
+        {1, 1.0, 1.2},
+    };
+    for (const Case& c : cases) {
+        auto r = minimax_cpppy::laplaceMinimax(c.nlap, c.ymin, c.ymax, 0);
+        const double err = max_approx_error(r, c.ymin, c.ymax, 20000);
+        std::cout << "    nlap=" << c.nlap << " [" << c.ymin << ", " << c.ymax
+                  << "] errmax=" << r.errmax << " sampled=" << err << "\n";
+        MINIMAX_REQUIRE(err <= r.errmax * (1.0 + 1e-6));
+        MINIMAX_REQUIRE(err >= r.errmax * (1.0 - 1e-3));
+    }
+}
+
+// Past saturation the [1, R] minimax equals the [1, inf) one, so errmax
+// stops growing with R.
+MINIMAX_TEST(errmax_saturates_in_ratio) {
+    const double e4 = minimax_cpppy::laplaceMinimax(5, 1.0, 1e4, 0).errmax;
+    const double e8 = minimax_cpppy::laplaceMinimax(5, 1.0, 1e8, 0).errmax;
+    MINIMAX_REQUIRE_CLOSE(e8, e4, 1e-6);
+}
+
 int main() { MINIMAX_RUN_TESTS(); }

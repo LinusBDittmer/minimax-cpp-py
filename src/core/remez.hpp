@@ -240,43 +240,83 @@ static minimax_cpppy::MinimaxResult remezLoop(
     int verbose = 0, std::ostream* os = nullptr)
 {
     const int numPoints = 2 * nlap + 1;
-    std::vector<DD> interiorExtrema(numPoints - 2), allExtrema(numPoints);
+    std::vector<DD> interiorExtrema, allExtrema(numPoints);
     DD rangeLo(1.0), rangeHi(ratio);
 
     const double* maehlyHint = (initExtrema && !initExtrema->empty())
                                ? initExtrema->data() : nullptr;
 
-    if (verbose >= 3 && os) {
-        *os << "[Remez]\n"
-            << fmtHeaderCell("iter", 4) << "  " << fmtHeaderCell("errmax", 12)
-            << "  " << fmtHeaderCell("NR_iters", 8) << "\n"
-            << ruleCell(4) << "  " << ruleCell(12) << "  " << ruleCell(8) << "\n";
-    }
-    for (int iter = 0; iter < maxIter; ++iter) {
-        maehlySolver(interiorExtrema.data(), numPoints - 2, rangeLo, rangeHi,
-                     std::max(maxIter * 5, 1000), toleranceMaehly,
-                     exponents.data(), weights.data(),
-                     nlap, stepMax, delta, maehlyHint, verbose, os);
-        maehlyHint = nullptr;   // hint used only on first iteration
-
-        allExtrema[0]             = rangeLo;
-        allExtrema[numPoints - 1] = rangeHi;
-        for (int i = 0; i < numPoints - 2; ++i) { allExtrema[i + 1] = interiorExtrema[i]; }
-
-        int numNRIters = paraoptSolver(exponents.data(), weights.data(), errorAmplitude,
-                                       allExtrema.data(), numPoints,
-                                       maxIter, toleranceNR, stepMax, armijoConstant, nlap,
-                                       verbose, os);
+    // Finite mode: alternation points {1, 2n-1 interior extrema, R}.
+    // Saturated mode: {1, 2n interior extrema}; used once R exceeds the
+    // saturation ratio, where the [1, R] minimax equals the [1, inf) one and
+    // |e(R)| = ~1/R < eps, so R is no longer an alternation point.
+    auto runRemez = [&](bool saturated) {
+        const int numInterior = saturated ? numPoints - 1 : numPoints - 2;
+        interiorExtrema.assign(numInterior, DD(0.0));
         if (verbose >= 3 && os) {
-            *os << fmtCellInt(iter, 4) << "  " << fmtCell(std::abs(errorAmplitude.hi), 12, 4)
-                << "  " << fmtCellInt(numNRIters, 8) << "\n";
+            *os << (saturated ? "[Remez, saturated]\n" : "[Remez]\n")
+                << fmtHeaderCell("iter", 4) << "  " << fmtHeaderCell("errmax", 12)
+                << "  " << fmtHeaderCell("NR_iters", 8) << "\n"
+                << ruleCell(4) << "  " << ruleCell(12) << "  " << ruleCell(8) << "\n";
         }
-        if (numNRIters == 1) { break; }
+        for (int iter = 0; iter < maxIter; ++iter) {
+            maehlySolver(interiorExtrema.data(), numInterior, rangeLo, rangeHi,
+                         std::max(maxIter * 5, 1000), toleranceMaehly,
+                         exponents.data(), weights.data(),
+                         nlap, stepMax, delta, maehlyHint, verbose, os);
+            maehlyHint = nullptr;   // hint used only on first iteration
+
+            allExtrema[0] = rangeLo;
+            if (!saturated) { allExtrema[numPoints - 1] = rangeHi; }
+            for (int i = 0; i < numInterior; ++i) { allExtrema[i + 1] = interiorExtrema[i]; }
+
+            int numNRIters = paraoptSolver(exponents.data(), weights.data(), errorAmplitude,
+                                           allExtrema.data(), numPoints,
+                                           maxIter, toleranceNR, stepMax, armijoConstant, nlap,
+                                           verbose, os);
+            if (verbose >= 3 && os) {
+                *os << fmtCellInt(iter, 4) << "  " << fmtCell(std::abs(errorAmplitude.hi), 12, 4)
+                    << "  " << fmtCellInt(numNRIters, 8) << "\n";
+            }
+            if (numNRIters == 1) { break; }
+        }
+    };
+
+    // R is a valid alternation endpoint only if |e| is still growing there,
+    // i.e. e(R) * e'(R) >= 0. Otherwise an extremum in (x_{2n-1}, R) is
+    // missed and a "converged" finite equioscillation is spurious (eps ~ 1/R).
+    auto endpointDecreasing = [&]() {
+        DD hprimeR, h2primeR, errR;
+        evalLogErrorDerivativesFromX(hprimeR, h2primeR, errR, rangeHi,
+                                     exponents.data(), weights.data(), nlap);
+        return (errR * hprimeR).hi < 0.0;
+    };
+
+    // A near-optimal seed already reveals saturation; skip the finite pass then.
+    // A poor seed (e.g. extrapolated below the table range) can be misjudged,
+    // so on failure restore it and take the finite path instead.
+    bool done = false;
+    if (endpointDecreasing()) {
+        const std::vector<DD> seedExp = exponents, seedWt = weights;
+        const DD seedErr = errorAmplitude;
+        const double* seedHint = maehlyHint;
+        maehlyHint = nullptr;   // hint holds 2n-1, not 2n, extrema
+        try {
+            runRemez(true);
+            done = true;
+        } catch (const std::exception&) {
+            exponents = seedExp; weights = seedWt;
+            errorAmplitude = seedErr; maehlyHint = seedHint;
+        }
+    }
+    if (!done) {
+        runRemez(false);
+        if (endpointDecreasing()) { runRemez(true); }
     }
 
     if (finalExtremaOut != nullptr) {
-        finalExtremaOut->resize(numPoints - 2);
-        for (int i = 0; i < numPoints - 2; ++i) {
+        finalExtremaOut->resize(interiorExtrema.size());
+        for (size_t i = 0; i < interiorExtrema.size(); ++i) {
             (*finalExtremaOut)[i] = interiorExtrema[i].hi;
         }
     }
@@ -288,7 +328,7 @@ static minimax_cpppy::MinimaxResult remezLoop(
         result.expon[k]  = (exponents[k] / ymin).hi;
         result.weight[k] = (weights[k]   / ymin).hi;
     }
-    result.errmax = std::abs(errorAmplitude.hi);
+    result.errmax = (DD::ddAbs(errorAmplitude) / ymin).hi;
     return result;
 }
 
